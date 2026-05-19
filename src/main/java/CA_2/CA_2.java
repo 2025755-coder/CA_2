@@ -104,3 +104,95 @@ private static void loadInitialData() {
         }
 
         return null;
+        
+    }
+
+    private static void printMenu() {
+        System.out.println();
+        System.out.println("Do You wish to SORT or SEARCH:");
+        for (MenuOption option : MenuOption.values()) {
+            System.out.println(option.getChoice() + ". " + option.getLabel());
+        }
+    }
+
+    private static MenuOption readMenuOption() {
+        while (true) {
+            String input = readLine("Choose an option: ").trim();
+            try {
+                int choice = Integer.parseInt(input);
+                MenuOption option = MenuOption.fromChoice(choice);
+                if (option != null) {
+                    return option;
+                }
+            } catch (NumberFormatException ignored) {
+            }
+
+            System.out.println("Invalid menu option. Please try again.");
+        }
+    }
+
+    private static void sortAndDisplayEmployees() {
+        if (EMPLOYEES.isEmpty()) {
+            System.out.println("No records available to sort.");
+            return;
+        }
+
+        List<Employee> sortedEmployees = mergeSort(new ArrayList<>(EMPLOYEES));
+        System.out.println("SORT selected");
+        System.out.println("First 20 names in alphabetical order:");
+
+        int limit = Math.min(20, sortedEmployees.size());
+        for (int i = 0; i < limit; i++) {
+            Employee employee = sortedEmployees.get(i);
+            System.out.println((i + 1) + ". " + employee.getFullName());
+        }
+    }
+
+    private static void searchEmployeeByName() {
+        if (EMPLOYEES.isEmpty()) {
+            System.out.println("No records available to search.");
+            return;
+        }
+
+        List<Employee> sortedEmployees = mergeSort(new ArrayList<>(EMPLOYEES));
+        String query = readLine("Enter the name to search: ").trim();
+
+        if (query.isBlank()) {
+            System.out.println("Search text cannot be empty.");
+            return;
+        }
+
+        Employee found = binarySearch(sortedEmployees, query.toLowerCase(Locale.ROOT), 0, sortedEmployees.size() - 1);
+        if (found == null) {
+            System.out.println("No matching record found for: " + query);
+            return;
+        }
+
+        System.out.println("Record found:");
+        System.out.println("Name: " + found.getFullName());
+        System.out.println("Manager Type / Role: " + found.getRole());
+        System.out.println("Department: " + found.getDepartment());
+        if (!found.getEmail().isBlank()) {
+            System.out.println("Email: " + found.getEmail());
+        }
+        if (!found.getCompany().isBlank()) {
+            System.out.println("Company: " + found.getCompany());
+        }
+    }
+
+    private static void addEmployeeRecord() {
+        System.out.println("Please select an option from the following:");
+        System.out.println("1. Add Employee");
+        System.out.println("2. Generate employee hierarchy binary tree");
+
+        String choiceInput = readLine("Choose an option: ").trim();
+        if (!"1".equals(choiceInput)) {
+            System.out.println("Returning to the menu.");
+            return;
+        }
+
+        String name = readLine("Please input the Employee Name: ").trim();
+        if (name.isBlank()) {
+            System.out.println("Name cannot be empty.");
+            return;
+        }
