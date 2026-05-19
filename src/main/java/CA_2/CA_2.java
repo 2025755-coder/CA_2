@@ -196,3 +196,34 @@ private static void loadInitialData() {
             System.out.println("Name cannot be empty.");
             return;
         }
+
+        ManagerType managerType = promptManagerType();
+        DepartmentType department = promptDepartmentType();
+
+        Employee employee = Employee.fromManualEntry(name, managerType.getDisplayName(), department.getDisplayName());
+        EMPLOYEES.add(employee);
+
+        System.out.println("\"" + employee.getFullName() + "\" has been added as \"" + managerType.getDisplayName()
+                + "\" to \"" + department.getDisplayName() + "\" successfully!");
+    }
+
+    private static ManagerType promptManagerType() {
+        System.out.println("Please select from the following Management Staff:");
+        for (ManagerType type : ManagerType.values()) {
+            System.out.println(type.getChoice() + ". " + type.getDisplayName());
+        }
+
+        while (true) {
+            String input = readLine("Select manager type: ").trim();
+            try {
+                int choice = Integer.parseInt(input);
+                ManagerType type = ManagerType.fromChoice(choice);
+                if (type != null) {
+                    return type;
+                }
+            } catch (NumberFormatException ignored) {
+            }
+
+            System.out.println("Invalid manager type. Please try again.");
+        }
+    }
