@@ -227,3 +227,24 @@ private static void loadInitialData() {
             System.out.println("Invalid manager type. Please try again.");
         }
     }
+    
+    private static DepartmentType promptDepartmentType() {
+        System.out.println("Please select the Department:");
+        for (DepartmentType department : DepartmentType.values()) {
+            System.out.println(department.getChoice() + ". " + department.getDisplayName());
+        }
+
+        while (true) {
+            String input = readLine("Select department: ").trim();
+            try {
+                int choice = Integer.parseInt(input);
+                DepartmentType department = DepartmentType.fromChoice(choice);
+                if (department != null) {
+                    return department;
+                }
+            } catch (NumberFormatException ignored) {
+            }
+
+            System.out.println("Invalid department. Please try again.");
+        }
+    }
