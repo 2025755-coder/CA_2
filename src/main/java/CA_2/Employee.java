@@ -34,3 +34,62 @@ public class Employee {
         this.jobTitle = safe(jobTitle);
         this.company = safe(company);
     }
+    public static Employee fromManualEntry(String fullName, String managerRole, String department) {
+        String trimmedName = fullName.trim();
+        String firstName = trimmedName;
+        String lastName = "";
+
+        int lastSpace = trimmedName.lastIndexOf(' ');
+        if (lastSpace > 0) {
+            firstName = trimmedName.substring(0, lastSpace).trim();
+            lastName = trimmedName.substring(lastSpace + 1).trim();
+        }
+
+        return new Employee(firstName, lastName, "", "", 0.0, department, managerRole, managerRole, "Manual Entry");
+    }
+
+    public String getFullName() {
+        if (lastName.isBlank()) {
+            return firstName;
+        }
+        return firstName + " " + lastName;
+    }
+
+    public String getSearchKey() {
+        return getFullName().toLowerCase(Locale.ROOT);
+    }
+
+    public String getRole() {
+        if (!jobTitle.isBlank()) {
+            return jobTitle;
+        }
+        if (!position.isBlank()) {
+            return position;
+        }
+        return "Unknown";
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    private static String safe(String value) {
+        return value == null ? "" : value.trim();
+    }
+}
