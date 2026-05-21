@@ -17,9 +17,8 @@ public class Employee {
     private final String gender;
     private final String email;
     private final double salary;
-    private final String department;
-    private final String position;
-    private final String jobTitle;
+    private final Department department;
+    private final Manager manager;
     private final String company;
 
     public Employee(String firstName, String lastName, String gender, String email, double salary,
@@ -29,11 +28,11 @@ public class Employee {
         this.gender = safe(gender);
         this.email = safe(email);
         this.salary = salary;
-        this.department = safe(department);
-        this.position = safe(position);
-        this.jobTitle = safe(jobTitle);
+        this.department = new Department(department);
+        this.manager = new Manager(position, jobTitle);
         this.company = safe(company);
     }
+
     public static Employee fromManualEntry(String fullName, String managerRole, String department) {
         String trimmedName = fullName.trim();
         String firstName = trimmedName;
@@ -60,17 +59,11 @@ public class Employee {
     }
 
     public String getRole() {
-        if (!jobTitle.isBlank()) {
-            return jobTitle;
-        }
-        if (!position.isBlank()) {
-            return position;
-        }
-        return "Unknown";
+        return manager.getRole();
     }
 
     public String getDepartment() {
-        return department;
+        return department.getName();
     }
 
     public String getEmail() {

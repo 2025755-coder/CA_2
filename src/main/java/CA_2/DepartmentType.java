@@ -8,6 +8,7 @@ package CA_2;
  *
  * @author tina
  */
+
 public enum DepartmentType {
     CUSTOMER_SERVICE(1, "Customer Service"),
     FOREIGN_EXCHANGE(2, "Foreign Exchange"),

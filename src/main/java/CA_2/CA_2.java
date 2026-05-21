@@ -8,20 +8,22 @@ package CA_2;
  *
  * @author tina
  */
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
+import java.util.Scanner;
 
 public class CA_2 {
 
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final List<Employee> EMPLOYEES = new ArrayList<>();
+    private static final List<Employee> MANUALLY_ADDED_EMPLOYEES = new ArrayList<>();
 
     public static void main(String[] args) {
         System.out.println("CA_2 Organisation Prototype");
@@ -45,8 +47,8 @@ public class CA_2 {
 
         System.out.println("Program ended.");
     }
-    
-private static void loadInitialData() {
+
+    private static void loadInitialData() {
         String fileName = readLine("Please enter the filename to read (press Enter for default): ").trim();
         if (fileName.isBlank()) {
             fileName = "Applicants_Form.txt";
@@ -94,7 +96,12 @@ private static void loadInitialData() {
     private static Path resolveInputFile(String fileName) {
         List<String> candidates = new ArrayList<>();
         candidates.add(fileName);
+        candidates.add("Applicants_Form.txt");
         candidates.add("Applicants_Form - Sample data file for read.txt");
+        candidates.add("../Applicants_Form.txt");
+        candidates.add("../Applicants_Form - Sample data file for read.txt");
+        candidates.add("../../Applicants_Form.txt");
+        candidates.add("../../Applicants_Form - Sample data file for read.txt");
 
         for (String candidate : candidates) {
             Path path = Paths.get(candidate);
@@ -104,7 +111,6 @@ private static void loadInitialData() {
         }
 
         return null;
-        
     }
 
     private static void printMenu() {
@@ -202,9 +208,11 @@ private static void loadInitialData() {
 
         Employee employee = Employee.fromManualEntry(name, managerType.getDisplayName(), department.getDisplayName());
         EMPLOYEES.add(employee);
+        MANUALLY_ADDED_EMPLOYEES.add(employee);
 
         System.out.println("\"" + employee.getFullName() + "\" has been added as \"" + managerType.getDisplayName()
                 + "\" to \"" + department.getDisplayName() + "\" successfully!");
+        displayManuallyAddedEmployees();
     }
 
     private static ManagerType promptManagerType() {
@@ -227,7 +235,7 @@ private static void loadInitialData() {
             System.out.println("Invalid manager type. Please try again.");
         }
     }
-    
+
     private static DepartmentType promptDepartmentType() {
         System.out.println("Please select the Department:");
         for (DepartmentType department : DepartmentType.values()) {
@@ -248,3 +256,109 @@ private static void loadInitialData() {
             System.out.println("Invalid department. Please try again.");
         }
     }
+
+    private static void buildAndShowHierarchyTree() {
+        if (EMPLOYEES.isEmpty()) {
+            System.out.println("No records available to build a tree.");
+            return;
+        }
+
+        int recordCount = EMPLOYEES.size();
+        if (recordCount < 20) {
+            System.out.println("Only " + recordCount + " records are available. At least 20 are required for full assessment.");
+        }
+
+        BinaryTree tree = new BinaryTree();
+        for (int i = 0; i < recordCount; i++) {
+            tree.insertLevelOrder(EMPLOYEES.get(i));
+        }
+
+        System.out.println("Employee hierarchy using level-order insertion:");
+        tree.printLevelOrder();
+        System.out.println("Tree height: " + tree.height());
+        System.out.println("Total node count: " + tree.countNodes());
+    }
+
+    private static void displayManuallyAddedEmployees() {
+        System.out.println("Newly added records:");
+        for (int i = 0; i < MANUALLY_ADDED_EMPLOYEES.size(); i++) {
+            Employee employee = MANUALLY_ADDED_EMPLOYEES.get(i);
+            System.out.println((i + 1) + ". " + employee.getFullName() + " | "
+                    + employee.getRole() + " | " + employee.getDepartment());
+        }
+    }
+
+    private static List<Employee> mergeSort(List<Employee> employees) {
+        if (employees.size() <= 1) {
+            return employees;
+        }
+
+        int middle = employees.size() / 2;
+        List<Employee> left = mergeSort(new ArrayList<>(employees.subList(0, middle)));
+        List<Employee> right = mergeSort(new ArrayList<>(employees.subList(middle, employees.size())));
+
+        return merge(left, right);
+    }
+
+    private static List<Employee> merge(List<Employee> left, List<Employee> right) {
+        List<Employee> merged = new ArrayList<>(left.size() + right.size());
+        int leftIndex = 0;
+        int rightIndex = 0;
+
+        while (leftIndex < left.size() && rightIndex < right.size()) {
+            Employee leftEmployee = left.get(leftIndex);
+            Employee rightEmployee = right.get(rightIndex);
+
+            if (leftEmployee.getSearchKey().compareTo(rightEmployee.getSearchKey()) <= 0) {
+                merged.add(leftEmployee);
+                leftIndex++;
+            } else {
+                merged.add(rightEmployee);
+                rightIndex++;
+            }
+        }
+
+        while (leftIndex < left.size()) {
+            merged.add(left.get(leftIndex++));
+        }
+
+        while (rightIndex < right.size()) {
+            merged.add(right.get(rightIndex++));
+        }
+
+        return merged;
+    }
+
+    private static Employee binarySearch(List<Employee> employees, String searchKey, int left, int right) {
+        if (left > right) {
+            return null;
+        }
+
+        int middle = left + (right - left) / 2;
+        Employee middleEmployee = employees.get(middle);
+        int comparison = middleEmployee.getSearchKey().compareTo(searchKey);
+
+        if (comparison == 0) {
+            return middleEmployee;
+        }
+
+        if (comparison > 0) {
+            return binarySearch(employees, searchKey, left, middle - 1);
+        }
+
+        return binarySearch(employees, searchKey, middle + 1, right);
+    }
+
+    private static String readLine(String prompt) {
+        System.out.print(prompt);
+        return SCANNER.nextLine();
+    }
+
+    private static double parseDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException ex) {
+            return 0.0;
+        }
+    }
+}
